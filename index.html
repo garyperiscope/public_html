@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Интерактивная карта</title>
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.0.0/mapbox-gl.js"></script>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v3.0.0/mapbox-gl.css" rel="stylesheet"/>
+    <link rel="icon" href="./svg/info.svg" type="image/svg+xml">
+    <style>
+body { margin: 0; padding: 0; }
+#map { position: absolute; top: 0; bottom: 0; width: 100%; }
+.map-overlay {transition: 0.4s; position: absolute; top: 10px; left: 10px; background: rgba(255, 255, 255, 0.9); border-radius: 8px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); font-family: Arial, sans-serif; max-width: 300px; z-index: 1; }
+.map-overlay-inner { padding: 15px; }
+.legend-title { font-size: 16px; font-weight: bold; text-align: center; margin-bottom: 15px; color: #333; }
+.category-group { margin-bottom: 10px; }
+.category-header { font-size: 14px; font-weight: 600; color: #444; padding: 8px 10px; background: #f0f0f0; border-radius: 4px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+.category-header::after { content: '▼'; font-size: 12px; transition: transform 0.2s; }
+.category-header.collapsed::after { transform: rotate(-90deg); }
+.category-items { padding: 10px 0; display: block; padding-bottom: 0px;}
+.category-items.collapsed { display: none; }
+.legend-grid { display: grid; gap: 2px; }
+.legend-item { display: flex; align-items: center; gap: 5px; }
+.legend-checkbox { width: 16px; height: 16px; cursor: pointer; }
+.legend-icon img { width: 20px; height: 20px; vertical-align: middle; }
+.legend-label { font-size: 13px; color: #555; }
+.mapboxgl-popup-content { min-width: 260px;border-radius: 10px;}
+.mapboxgl-popup-content p { margin: 0;}
+button.mapboxgl-popup-close-button {background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-0.0046399543061852455 -0.0032954735215753317 512.00927734375 512.0033569335938'%3e%3cg data-name='02 User'%3e%3cpath d='M25 512a25 25 0 0 1-17.68-42.68l462-462a25 25 0 0 1 35.36 35.36l-462 462A24.93 24.93 0 0 1 25 512z' fill='%23000000' opacity='1' data-original='%23000000' class=''%3e%3c/path%3e%3cpath d='M487 512a24.93 24.93 0 0 1-17.68-7.32l-462-462A25 25 0 0 1 42.68 7.32l462 462A25 25 0 0 1 487 512z' fill='%23000000' opacity='1' data-original='%23000000' class=''%3e%3c/path%3e%3c/g%3e%3c/svg%3e");  color: #fff;    font-size: 0px;    height: 28px;    width: 28px;    background-size: 41%;    background-position: center;    background-repeat: no-repeat;}
+.mapboxgl-popup-content h3 {margin-top: 0px; padding-right: 30px;  margin-bottom: 10px;}
+.mapboxgl-popup-close-button:hover {  background-color: transparent;}
+.category-group:last-child {  margin-bottom: 0px;}
+.category-group:last-child .category-items {  padding-bottom: 0px;}
+.map-overlayhide { background: #fff; box-shadow: 0px 0px 10px #00000033; position: absolute; z-index: 5;  width: 40px; height: 40px; left: 320px;  top: 10px; border-radius: 10px; transition: 0.3s;}
+.map-overlayhide:before { width: 15px;    content: "";  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' version='1.1' xmlns:xlink='http://www.w3.org/1999/xlink' width='512' height='512' x='0' y='0' viewBox='0 0 451.847 451.847' style='enable-background:new 0 0 512 512' xml:space='preserve' class=''%3e%3cg transform='matrix(3.061616997868383e-16,1,-1,3.061616997868383e-16,451.84698772430414,-0.0004911422730060622)'%3e%3cpath d='M225.923 354.706c-8.098 0-16.195-3.092-22.369-9.263L9.27 151.157c-12.359-12.359-12.359-32.397 0-44.751 12.354-12.354 32.388-12.354 44.748 0l171.905 171.915 171.906-171.909c12.359-12.354 32.391-12.354 44.744 0 12.365 12.354 12.365 32.392 0 44.751L248.292 345.449c-6.177 6.172-14.274 9.257-22.369 9.257z' fill='%23000000' opacity='1' data-original='%23000000' class=''%3e%3c/path%3e%3c/g%3e%3c/svg%3e");
+    height: 15px;  background-size: contain;    position: absolute;    top: 13px;    left: 11px; transition: 0.3s;}
+.map-overlayhide.close:before { transform: rotate(177deg);  left: 14px;}
+.map-overlayhide.close + .map-overlay {  left: -390px;}
+.map-overlayhide.close {  left: 10px;}
+@media (max-width:768px){
+.map-overlay-inner {
+    height: 88vh;
+    overflow: scroll;
+}    
+}
+
+</style>
+</head>
+<body>
+    <div id="map"></div>
+    <div class="map-overlayhide"></div>
+    <div class="map-overlay">
+        <div class="map-overlay-inner">
+            <div class="legend-title">УСЛОВНЫЕ ОБОЗНАЧЕНИЯ</div>
+            <div class="category-group">
+                <div class="category-header" onclick="toggleCategory(this)">Культурные и исторические достопримечательности</div>
+                <div class="category-items">
+                    <div class="legend-grid">
+                        <div class="legend-item">
+                            <input type="checkbox" class="legend-checkbox" id="interestingplaces-checkbox" checked onchange="toggleLayer('interestingplaces')">
+                            <div class="legend-icon"><img src="./svg/museum.svg"></div>
+                            <div class="legend-label">Музеи</div>
+                        </div>
+                        <div class="legend-item">
+                            <input type="checkbox" class="legend-checkbox" id="theatre-checkbox" checked onchange="toggleLayer('theatre')">
+                            <div class="legend-icon"><img src="./svg/theatre.svg"></div>
+                            <div class="legend-label">Театры</div>
+                        </div>
+                        <div class="legend-item">
+                            <input type="checkbox" class="legend-checkbox" id="monuments-checkbox" checked onchange="toggleLayer('monuments')">
+                            <div class="legend-icon"><img src="./svg/monument.svg"></div>
+                            <div class="legend-label">Монументы, памятники</div>
+                        </div>
+                        <div class="legend-item">
+                            <input type="checkbox" class="legend-checkbox" id="mosque-checkbox" checked onchange="toggleLayer('mosque')">
+                            <div class="legend-icon"><img src="./svg/mosque.svg"></div>
+                            <div class="legend-label">Мечети</div>
+                        </div>
+                        <div class="legend-item">
+                            <input type="checkbox" class="legend-checkbox" id="church-checkbox" checked onchange="toggleLayer('church')">
+                            <div class="legend-icon"><img src="./svg/church.svg"></div>
+                            <div class="legend-label">Церкви, храмы</div>
+                        </div>
+                        <div class="legend-item">
+                            <input type="checkbox" class="legend-checkbox" id="viewpoints-checkbox" checked onchange="toggleLayer('viewpoints')">
+                            <div class="legend-icon"><img src="./svg/view.svg"></div>
+                            <div class="legend-label">Смотровые площадки</div>
+                        </div>
+                        <div class="legend-item">
+                            <input type="checkbox" class="legend-checkbox" id="murals-checkbox" checked onchange="toggleLayer('murals')">
+                            <div class="legend-icon"><img src="./svg/mural.svg"></div>
+                            <div class="legend-label">Муралы</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="category-group">
+                <div class="category-header" onclick="toggleCategory(this)">Природно-рекреационные объекты</div>
+                <div class="category-items">
+                    <div class="legend-grid">
+                        <div class="legend-item">
+                            <input type="checkbox" class="legend-checkbox" id="nationparks-checkbox" checked onchange="toggleLayer('nationparks')">
+                            <div class="legend-icon"><img src="./svg/nationpark.svg"></div>
+                            <div class="legend-label">Национальной парк</div>
+                        </div>
+                        <div class="legend-item">
+                            <input type="checkbox" class="legend-checkbox" id="parks-checkbox" checked onchange="toggleLayer('parks')">
+                            <div class="legend-icon"><img src="./svg/park.svg"></div>
+                            <div class="legend-label">Городские парки</div>
+                        </div>
+                        <div class="legend-item">
+                            <input type="checkbox" class="legend-checkbox" id="embankment-checkbox" checked onchange="toggleLayer('embankment')">
+                            <div class="legend-icon"><img src="./svg/embankment.svg"></div>
+                            <div class="legend-label">Набережные</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="category-group">
+                <div class="category-header" onclick="toggleCategory(this)">Инфраструктура обслуживания</div>
+                <div class="category-items">
+                    <div class="legend-grid">
+                        <div class="legend-item">
+                            <input type="checkbox" class="legend-checkbox" id="hostdolp-checkbox" checked onchange="toggleLayer('hostdolp')">
+                            <div class="legend-icon"><img src="./svg/hostel.svg"></div>
+                            <div class="legend-label">Хостелы</div>
+                        </div>
+                        <div class="legend-item">
+                            <input type="checkbox" class="legend-checkbox" id="infos-checkbox" checked onchange="toggleLayer('infos')">
+                            <div class="legend-icon"><img src="./svg/info.svg"></div>
+                            <div class="legend-label">Информационный центр</div>
+                        </div>
+                        <div class="legend-item">
+                            <input type="checkbox" class="legend-checkbox" id="foodnation-checkbox" checked onchange="toggleLayer('foodnation')">
+                            <div class="legend-icon"><img src="./svg/cafe.svg"></div>
+                            <div class="legend-label">Кафе и рестораны национальной кухни</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="category-group">
+                <div class="category-header" onclick="toggleCategory(this)">Услуги и сервис</div>
+                <div class="category-items">
+                    <div class="legend-grid">
+                        <div class="legend-item">
+                            <input type="checkbox" class="legend-checkbox" id="amusements-checkbox" checked onchange="toggleLayer('amusements')">
+                            <div class="legend-icon"><img src="./svg/amusement.svg"></div>
+                            <div class="legend-label">Атракционы</div>
+                        </div>
+                        <div class="legend-item">
+                            <input type="checkbox" class="legend-checkbox" id="cinemas-checkbox" checked onchange="toggleLayer('cinemas')">
+                            <div class="legend-icon"><img src="./svg/cinema.svg"></div>
+                            <div class="legend-label">Кинотеатры</div>
+                        </div>
+                        <div class="legend-item">
+                            <input type="checkbox" class="legend-checkbox" id="dolphins-checkbox" checked onchange="toggleLayer('dolphins')">
+                            <div class="legend-icon"><img src="./svg/dolphin.svg"></div>
+                            <div class="legend-label">Дельфинарий</div>
+                        </div>
+                        <div class="legend-item">
+                            <input type="checkbox" class="legend-checkbox" id="beach-checkbox" checked onchange="toggleLayer('beach')">
+                            <div class="legend-icon"><img src="./svg/beach.svg"></div>
+                            <div class="legend-label">Пляжи</div>
+                        </div>
+                        <div class="legend-item">
+                            <input type="checkbox" class="legend-checkbox" id="micros-checkbox" checked onchange="toggleLayer('micros')">
+                            <div class="legend-icon"><img src="./svg/micro.svg"></div>
+                            <div class="legend-label">Концертные залы</div>
+                        </div>                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+document.querySelector('.map-overlayhide').addEventListener('click', function() {
+  this.classList.toggle('close');
+});
+
+
+        mapboxgl.accessToken = 'pk.eyJ1IjoibWlpZ2FpayIsImEiOiJjbGNybnF4cnYwMmt2M3ZzMXcydG4wcTllIn0.kxQ57R-Ecbl30by21dbelw';
+        
+        const map = new mapboxgl.Map({
+            container: 'map',
+            style: './style.json',
+            projection: 'mercator',
+            center: [52.39, 55.73],
+            zoom: 7.7,
+            minZoom: 7,
+            maxZoom: 15.5,
+        });
+
+        const layerConfigs = {
+            foodnation: { 
+                file: './geo/foodnation.geojson', 
+                category: 'Достопримечательности',
+                layerId: 'points-6l41lp foodnation',
+                icon: './svg/cafe.svg',
+                styleIcon: 'cafe'
+            },
+            interestingplaces: { 
+                file: './geo/interestingplaces.geojson', 
+                category: 'Достопримечательности',
+                layerId: 'points-6l41lp museum',
+                icon: './svg/museum.svg',
+                styleIcon: 'museum'
+            },
+            parks: { 
+                file: './geo/parks.geojson', 
+                category: 'Природные объекты',
+                layerId: 'parks-processed-bnamtj copy',
+                icon: './svg/park.svg',
+                styleIcon: 'park'
+            },
+            hostdolp: { 
+                file: './geo/hostdolp.geojson', 
+                category: 'Услуги и сервис',
+                layerId: 'points-6l41lp hotel',
+                icon: './svg/hostel.svg',
+                styleIcon: 'hostel'
+            },
+            embankment: { 
+                file: './geo/interestingplaces.geojson',
+                category: 'Достопримечательности',
+                layerId: 'points-6l41lp embankment',
+                icon: './svg/embankment.svg',
+                styleIcon: 'embankment'
+            },
+            mosque: { 
+                file: './geo/interestingplaces.geojson', 
+                category: 'Достопримечательности',
+                layerId: 'points-6l41lp mosque',
+                icon: './svg/mosque.svg',
+                styleIcon: 'mosque'
+            },
+            church: { 
+                file: './geo/interestingplaces.geojson', 
+                category: 'Достопримечательности',
+                layerId: 'points-6l41lp church',
+                icon: './svg/church.svg',
+                styleIcon: 'church'
+            },
+            beach: { 
+                file: './geo/interestingplaces.geojson',
+                category: 'Природные объекты',
+                layerId: 'points-6l41lp beach',
+                icon: './svg/beach.svg',
+                styleIcon: 'beach'
+            },
+            viewpoints: { 
+                file: './geo/interestingplaces.geojson',
+                category: 'Достопримечательности',
+                layerId: 'points-6l41lp view_point',
+                icon: './svg/view.svg',
+                styleIcon: 'view',
+                filter: ['==', ['get', 'main_kind'], 'view_points']
+            },
+            theatre: { 
+                file: './geo/interestingplaces.geojson',
+                category: 'Услуги и сервис',
+                layerId: 'points-6l41lp theatre',
+                icon: './svg/theatre.svg',
+                styleIcon: 'theatre',
+                filter: ['==', ['get', 'main_kind'], 'theatre']
+            },
+            amusements: { 
+                file: './geo/hostdolp.geojson', 
+                category: 'Развлечения',
+                layerId: 'ponts-899e2a amusements',
+                icon: './svg/amusement.svg',
+                styleIcon: 'amusement',
+                filter: ['in', 'amusement', ['get', 'kinds']]
+            }
+        };
+
+        // Добавляем контролы
+        map.addControl(new mapboxgl.FullscreenControl());
+        map.addControl(new mapboxgl.NavigationControl());
+        map.addControl(new mapboxgl.ScaleControl(), 'bottom-right');
+
+        // Кэш для загруженных файлов и иконок
+        const dataCache = new Map();
+        const iconCache = new Set();
+        
+        // Группируем конфигурации по файлам для оптимизации загрузки
+        const fileGroups = {};
+        Object.entries(layerConfigs).forEach(([layerId, config]) => {
+            if (!fileGroups[config.file]) {
+                fileGroups[config.file] = [];
+            }
+            fileGroups[config.file].push({ layerId, config });
+        });
+
+        // Цвета для fallback иконок
+        const layerColors = {
+            cafe: '#8B4513', museum: '#696969', park: '#32CD32', hostel: '#FF4500',
+            embankment: '#4682B4', beach: '#FFD700', view: '#9370DB', mosque: '#4B0082',
+            church: '#8B0000', theatre: '#FF1493', amusement: '#FF6347'
+        };
+
+        function createFallbackIcon(iconId) {
+            if (iconCache.has(iconId)) return;
+            
+            const canvas = document.createElement('canvas');
+            canvas.width = canvas.height = 24;
+            const ctx = canvas.getContext('2d');
+            
+            ctx.beginPath();
+            ctx.arc(12, 12, 10, 0, 2 * Math.PI);
+            ctx.fillStyle = layerColors[iconId] || '#666666';
+            ctx.fill();
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            
+            map.addImage(iconId, canvas);
+            iconCache.add(iconId);
+        }
+
+        function loadIcon(config) {
+            return new Promise((resolve) => {
+                if (iconCache.has(config.styleIcon)) {
+                    resolve();
+                    return;
+                }
+
+                const img = new Image(24, 24);
+                img.onload = () => {
+                    if (!map.hasImage(config.styleIcon)) {
+                        map.addImage(config.styleIcon, img);
+                    }
+                    iconCache.add(config.styleIcon);
+                    resolve();
+                };
+                img.onerror = () => {
+                    createFallbackIcon(config.styleIcon);
+                    resolve();
+                };
+                img.src = config.icon;
+            });
+        }
+
+        function filterData(data, filter) {
+            if (!filter) return data;
+            
+            return {
+                type: "FeatureCollection",
+                features: data.features.filter(feature => {
+                    if (filter[0] === '==' && filter[1][1] === 'main_kind') {
+                        return feature.properties.main_kind === filter[2];
+                    }
+                    if (filter[0] === 'in') {
+                        const kinds = feature.properties.kinds || '';
+                        return kinds.includes(filter[1]);
+                    }
+                    return true;
+                })
+            };
+        }
+
+        function addEventListeners(layerId, config) {
+            const layer = config.layerId;
+            
+            map.on('click', layer, (e) => {
+                const props = e.features[0].properties;
+                const name = props.Название || props.name || 'Без названия';
+                
+                let description = '';
+                if (props.Картинка && props.Картинка !== 'Нет данных') {
+                    description += `<p><img src="${props.Картинка}" alt="${props.name}" style="max-width: 100%; height: auto;"></p>`;
+                }
+                if (props.Адрес) description += `<p><strong>Адрес:</strong> ${props.Адрес}</p>`;
+                if (props.Рейтинг) description += `<p><strong>Рейтинг:</strong> ${props.Рейтинг}</p>`;
+                if (props.Сайт && props.Сайт !== 'Нет данных') {
+                    description += `<p><strong>Сайт:</strong> <a href="${props.Сайт}" target="_blank">Перейти</a></p>`;
+                }
+                if (props.Телефон && props.Телефон !== 'Нет данных') {
+                    description += `<p><strong>Телефон:</strong> ${props.Телефон}</p>`;
+                }
+
+                new mapboxgl.Popup()
+                    .setLngLat(e.features[0].geometry.coordinates)
+                    .setHTML(`<h3>${name}</h3>${description}`)
+                    .addTo(map);
+            });
+
+            map.on('mouseenter', layer, () => map.getCanvas().style.cursor = 'pointer');
+            map.on('mouseleave', layer, () => map.getCanvas().style.cursor = '');
+        }
+
+        async function loadGeoData(file) {
+            if (dataCache.has(file)) {
+                return dataCache.get(file);
+            }
+
+            try {
+                const response = await fetch(file);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const data = await response.json();
+                dataCache.set(file, data);
+                return data;
+            } catch (error) {
+                throw error;
+            }
+        }
+
+map.on('load', async () => {
+
+const newPoints = {
+    type: 'FeatureCollection',
+    features: [
+        { type: 'Feature', geometry: { type: 'Point', coordinates: [52.101333, 55.564404] },
+            properties: { name: 'Аэропорт Бегишево', icon: './svg/airport.svg' }
+        },
+        { type: 'Feature', geometry: { type: 'Point', coordinates: [52.276329, 55.672221] },
+            properties: { name: 'Набережные Челны, вокзал станции КбшЖД', icon: './svg/jd.svg' }
+        },
+        { type: 'Feature', geometry: { type: 'Point', coordinates: [52.173562, 55.619446] },
+            properties: { name: 'Железнодорожная станция', icon: './svg/jd.svg' }
+        }
+    ]
+};
+
+layerColors.airport = '#1E90FF';
+layerColors.jd = '#228B22';
+
+const uniqueIcons = [...new Set(newPoints.features.map(feature => feature.properties.icon))];
+await Promise.all(
+    uniqueIcons.map(iconUrl => {
+        const iconId = iconUrl.split('/').pop().split('.')[0];
+        return loadIcon({ icon: iconUrl, styleIcon: iconId }).catch(() => {
+            createFallbackIcon(iconId);
+        });
+    })
+);
+
+map.addSource('new-points', {
+    type: 'geojson',
+    data: newPoints
+});
+
+uniqueIcons.forEach(iconUrl => {
+    const iconId = iconUrl.split('/').pop().split('.')[0];
+    const layerId = `points-${iconId}`;
+
+    if (!map.getLayer(layerId)) {
+        map.addLayer({
+            id: layerId,
+            type: 'symbol',
+            source: 'new-points',
+            filter: ['==', ['get', 'icon'], iconUrl],
+            layout: {
+                'icon-image': iconId,
+                'icon-size': 0.8,
+                'icon-allow-overlap': true,
+                'icon-ignore-placement': true,
+                'text-field': ['to-string', ['get', 'name']],
+                'text-size': 11,
+                'text-offset': [0, 1],
+                'text-anchor': 'top'
+            },
+            paint: {
+                'text-color': '#000000',
+                'text-halo-color': '#ffffff',
+                'text-halo-width': 1
+            }
+        });
+
+        addEventListeners(iconId, { layerId: layerId, icon: iconUrl, styleIcon: iconId });
+    }
+});
+
+const coordinates = newPoints.features.map(feature => feature.geometry.coordinates);
+const bounds = coordinates.reduce((bounds, coord) => {
+    return bounds.extend(coord);
+}, new mapboxgl.LngLatBounds(coordinates[0], coordinates[0]));
+map.fitBounds(bounds, { padding: 50, maxZoom: 10 });
+
+
+
+            // Загружаем все иконки параллельно
+            await Promise.all(
+                Object.values(layerConfigs).map(config => loadIcon(config))
+            );
+
+            // Обрабатываем каждый файл только один раз
+            for (const [file, layers] of Object.entries(fileGroups)) {
+                try {
+                    const data = await loadGeoData(file);
+                    
+                    for (const { layerId, config } of layers) {
+                        const filteredData = filterData(data, config.filter);
+                        
+                        if (!map.getSource(layerId)) {
+                            map.addSource(layerId, {
+                                type: 'geojson',
+                                data: filteredData
+                            });
+                        }
+
+                        if (!map.getLayer(config.layerId)) {
+                            map.addLayer({
+                                id: config.layerId,
+                                type: 'symbol',
+                                source: layerId,
+                                layout: {
+                                    'icon-image': config.styleIcon,
+                                    'icon-size': 0.8,
+                                    'icon-allow-overlap': true,
+                                    'icon-ignore-placement': true,
+                                    'text-field': ['to-string', ['get', 'name']],
+                                    'text-size': 11,
+                                    'text-offset': [0, 1],
+                                    'text-anchor': 'top'
+                                },
+                                paint: {
+                                    'text-color': '#000000',
+                                    'text-halo-color': '#ffffff',
+                                    'text-halo-width': 1
+                                }
+                            });
+                        }
+
+                        addEventListeners(layerId, config);
+                    }
+                } catch (error) {
+                    // Отключаем чекбоксы для неудачно загруженных слоев
+                    layers.forEach(({ layerId }) => {
+                        const checkbox = document.getElementById(`${layerId}-checkbox`);
+                        if (checkbox) {
+                            checkbox.disabled = true;
+                            checkbox.checked = false;
+                        }
+                    });
+                }
+            }
+        });
+
+        function toggleLayer(layerId) {
+            const checkbox = document.getElementById(`${layerId}-checkbox`);
+            const layer = layerConfigs[layerId].layerId;
+            map.setLayoutProperty(layer, 'visibility', checkbox.checked ? 'visible' : 'none');
+        }
+
+        function toggleCategory(element) {
+            const items = element.nextElementSibling;
+            element.classList.toggle('collapsed');
+            items.classList.toggle('collapsed');
+        }
+    </script>
+</body>
+</html>
