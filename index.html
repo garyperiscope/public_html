@@ -24,7 +24,7 @@ body { margin: 0; padding: 0; }
 .legend-checkbox { width: 16px; height: 16px; cursor: pointer; }
 .legend-icon img { width: 20px; height: 20px; vertical-align: middle; }
 .legend-label { font-size: 13px; color: #555; }
-.mapboxgl-popup-content { min-width: 260px;border-radius: 10px;}
+.mapboxgl-popup-content { min-width: 260px;border-radius: 10px;max-height: 330px; overflow: overlay;}
 .mapboxgl-popup-content p { margin: 0;}
 button.mapboxgl-popup-close-button {background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-0.0046399543061852455 -0.0032954735215753317 512.00927734375 512.0033569335938'%3e%3cg data-name='02 User'%3e%3cpath d='M25 512a25 25 0 0 1-17.68-42.68l462-462a25 25 0 0 1 35.36 35.36l-462 462A24.93 24.93 0 0 1 25 512z' fill='%23000000' opacity='1' data-original='%23000000' class=''%3e%3c/path%3e%3cpath d='M487 512a24.93 24.93 0 0 1-17.68-7.32l-462-462A25 25 0 0 1 42.68 7.32l462 462A25 25 0 0 1 487 512z' fill='%23000000' opacity='1' data-original='%23000000' class=''%3e%3c/path%3e%3c/g%3e%3c/svg%3e");  color: #fff;    font-size: 0px;    height: 28px;    width: 28px;    background-size: 41%;    background-position: center;    background-repeat: no-repeat;}
 .mapboxgl-popup-content h3 {margin-top: 0px; padding-right: 30px;  margin-bottom: 10px;}
@@ -37,17 +37,25 @@ button.mapboxgl-popup-close-button {background-image: url("data:image/svg+xml;ch
 .map-overlayhide.close:before { transform: rotate(177deg);  left: 14px;}
 .map-overlayhide.close + .map-overlay {  left: -390px;}
 .map-overlayhide.close {  left: 10px;}
+button.onlyeat { cursor:pointer; z-index: 5;  position: absolute;  right: 10px;  bottom: 70px;  background: #ed1e79;  border: none;  color: #fff;  padding: 14px 34px;  display: block;   border-radius: 7px;  font-size: 15px;}
+button.onlyeat:after { content: ""; background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0.1530008316040039 0 511.69451904296875 512.000732421875'%3e%3cg%3e%3cpath d='M498.682 435.326 297.917 234.56 63.357 0H45.026l-3.743 9.511c-9.879 25.104-14.1 50.78-12.205 74.249 2.16 26.752 12.323 49.913 29.392 66.982l183.11 183.11 24.152-24.152 169.285 189.293c16.84 16.84 45.825 17.84 63.665 0 17.554-17.554 17.554-46.114 0-63.667zM156.728 291.442 13.317 434.853c-17.552 17.552-17.552 46.113 0 63.665 16.674 16.674 45.519 18.146 63.665 0l143.412-143.412-63.666-63.664zM490.253 85.249l-81.351 81.35-21.223-21.222 81.351-81.351-21.222-21.222-81.35 81.35-21.222-21.222 81.351-81.35L405.366.361l-106.11 106.11a74.903 74.903 0 0 0-21.828 48.535c-.277 4.641-1.329 9.206-3.074 13.548l68.929 68.929c4.342-1.747 8.908-2.798 13.548-3.075a74.887 74.887 0 0 0 48.535-21.827l106.11-106.109-21.223-21.223z' fill='%23ffffff' opacity='1' data-original='%23000000'%3e%3c/path%3e%3c/g%3e%3c/svg%3e");  display: inline-block;    width: 14px;  height: 14px; margin-left: 10px;
+    margin-bottom: -2px;}
+button.reset-view {background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='1.9877043962478638 1.9877046346664429 28.02458953857422 28.02459144592285'%3e%3cg%3e%3cpath d='M16 12c-2.206 0-4 1.794-4 4s1.794 4 4 4 4-1.794 4-4-1.794-4-4-4zm0 6c-1.103 0-2-.897-2-2s.897-2 2-2 2 .897 2 2-.897 2-2 2zM10 6a1 1 0 0 0-1 1v.586L3.707 2.293a1 1 0 1 0-1.414 1.414L7.586 9H7a1 1 0 1 0 0 2h3a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1zM10 21H7a1 1 0 1 0 0 2h.586l-5.293 5.293a1 1 0 1 0 1.414 1.414L9 24.414V25a1 1 0 1 0 2 0v-3a1 1 0 0 0-1-1zM24.414 23H25a1 1 0 1 0 0-2h-3a1 1 0 0 0-1 1v3a1 1 0 1 0 2 0v-.586l5.293 5.293a.997.997 0 0 0 1.414 0 1 1 0 0 0 0-1.414zM25.16 20a9.934 9.934 0 0 0 0-8h-2.242a7.94 7.94 0 0 1 0 8zM12 6.84v2.242a7.94 7.94 0 0 1 8 0V6.841a9.933 9.933 0 0 0-8 0zM6.84 12a9.933 9.933 0 0 0 0 8h2.242a7.94 7.94 0 0 1 0-8zM12 22.918v2.241a9.934 9.934 0 0 0 8 0v-2.241a7.94 7.94 0 0 1-8 0zM22 11h3a1 1 0 1 0 0-2h-.586l5.293-5.293a1 1 0 1 0-1.414-1.414L23 7.586V7a1 1 0 1 0-2 0v3a1 1 0 0 0 1 1z' fill='%23000000' opacity='1' data-original='%23000000'%3e%3c/path%3e%3c/g%3e%3c/svg%3e");  position: absolute;  top: 144px;   background-color: #fff;  width: 30px;
+    right: 10px;  height: 30px;  background-size: 50%;  background-position: center;   background-repeat: no-repeat;  border: none;  border-radius: 5px; box-shadow: 0px 0px 3px #00000080;}
 @media (max-width:768px){
 .map-overlay-inner {
-    height: 88vh;
+    height: 80vh;
     overflow: scroll;
-}    
+}
+button.onlyeat {  bottom: 10px;  right: auto;  left: 10px;}
 }
 
 </style>
 </head>
 <body>
     <div id="map"></div>
+    <button class="reset-view"></button>
+    <button class="onlyeat">Поесть</button>
     <div class="map-overlayhide"></div>
     <div class="map-overlay">
         <div class="map-overlay-inner">
@@ -101,12 +109,12 @@ button.mapboxgl-popup-close-button {background-image: url("data:image/svg+xml;ch
                         <div class="legend-item">
                             <input type="checkbox" class="legend-checkbox" id="nationparks-checkbox" checked onchange="toggleLayer('nationparks')">
                             <div class="legend-icon"><img src="./svg/nationpark.svg"></div>
-                            <div class="legend-label">Национальной парк</div>
+                            <div class="legend-label">Национальные парки</div>
                         </div>
                         <div class="legend-item">
                             <input type="checkbox" class="legend-checkbox" id="parks-checkbox" checked onchange="toggleLayer('parks')">
                             <div class="legend-icon"><img src="./svg/park.svg"></div>
-                            <div class="legend-label">Городские парки</div>
+                            <div class="legend-label">Городские парки и скверы</div>
                         </div>
                         <div class="legend-item">
                             <input type="checkbox" class="legend-checkbox" id="embankment-checkbox" checked onchange="toggleLayer('embankment')">
@@ -128,7 +136,7 @@ button.mapboxgl-popup-close-button {background-image: url("data:image/svg+xml;ch
                         <div class="legend-item">
                             <input type="checkbox" class="legend-checkbox" id="infos-checkbox" checked onchange="toggleLayer('infos')">
                             <div class="legend-icon"><img src="./svg/info.svg"></div>
-                            <div class="legend-label">Информационный центр</div>
+                            <div class="legend-label">Визит-центры</div>
                         </div>
                         <div class="legend-item">
                             <input type="checkbox" class="legend-checkbox" id="foodnation-checkbox" checked onchange="toggleLayer('foodnation')">
@@ -145,7 +153,7 @@ button.mapboxgl-popup-close-button {background-image: url("data:image/svg+xml;ch
                         <div class="legend-item">
                             <input type="checkbox" class="legend-checkbox" id="amusements-checkbox" checked onchange="toggleLayer('amusements')">
                             <div class="legend-icon"><img src="./svg/amusement.svg"></div>
-                            <div class="legend-label">Атракционы</div>
+                            <div class="legend-label">Аттракционы</div>
                         </div>
                         <div class="legend-item">
                             <input type="checkbox" class="legend-checkbox" id="cinemas-checkbox" checked onchange="toggleLayer('cinemas')">
@@ -189,6 +197,7 @@ document.querySelector('.map-overlayhide').addEventListener('click', function() 
             zoom: 7.7,
             minZoom: 7,
             maxZoom: 15.5,
+            scrollZoom: false
         });
 
         const layerConfigs = {
@@ -358,36 +367,56 @@ document.querySelector('.map-overlayhide').addEventListener('click', function() 
                 })
             };
         }
-
-        function addEventListeners(layerId, config) {
-            const layer = config.layerId;
-            
-            map.on('click', layer, (e) => {
-                const props = e.features[0].properties;
-                const name = props.Название || props.name || 'Без названия';
-                
-                let description = '';
-                if (props.Картинка && props.Картинка !== 'Нет данных') {
-                    description += `<p><img src="${props.Картинка}" alt="${props.name}" style="max-width: 100%; height: auto;"></p>`;
+function addEventListeners(layerId, config) {
+    const layer = config.layerId;
+    
+    map.on('click', layer, (e) => {
+        const props = e.features[0].properties;
+        const name = props.Название || props.name || 'Без названия';
+        
+        let description = '';
+        const geojsonData = dataCache.get(config.file);
+        if (geojsonData) {
+            const matchingFeature = geojsonData.features.find(feature => 
+                feature.properties.name === name || feature.properties.Название === name
+            );
+            if (matchingFeature) {
+                if (matchingFeature.properties.Картинка && matchingFeature.properties.Картинка !== 'Нет данных') {
+                    description += `<p><img src="${matchingFeature.properties.Картинка}" alt="${name}" style="max-width: 100%; height: auto;"></p>`;
                 }
-                if (props.Адрес) description += `<p><strong>Адрес:</strong> ${props.Адрес}</p>`;
-                if (props.Рейтинг) description += `<p><strong>Рейтинг:</strong> ${props.Рейтинг}</p>`;
-                if (props.Сайт && props.Сайт !== 'Нет данных') {
-                    description += `<p><strong>Сайт:</strong> <a href="${props.Сайт}" target="_blank">Перейти</a></p>`;
+                if (matchingFeature.properties.Описание) {
+                    description += `<p><strong>Описание:</strong> ${matchingFeature.properties.Описание}</p>`;
+                } else {
+                    description += `<p><strong>Описание:</strong> Нет данных</p>`;
                 }
-                if (props.Телефон && props.Телефон !== 'Нет данных') {
-                    description += `<p><strong>Телефон:</strong> ${props.Телефон}</p>`;
-                }
-
-                new mapboxgl.Popup()
-                    .setLngLat(e.features[0].geometry.coordinates)
-                    .setHTML(`<h3>${name}</h3>${description}`)
-                    .addTo(map);
-            });
-
-            map.on('mouseenter', layer, () => map.getCanvas().style.cursor = 'pointer');
-            map.on('mouseleave', layer, () => map.getCanvas().style.cursor = '');
+            } else {
+                description += `<p><strong>Описание:</strong> Нет данных</p>`;
+            }
+        } else {
+            description += `<p><strong>Описание:</strong> Нет данных</p>`;
         }
+        if (props.Адрес) {
+            description += `<p><strong>Адрес:</strong> ${props.Адрес}</p>`;
+        }
+        if (props.Рейтинг) {
+            description += `<p><strong>Рейтинг:</strong> ${props.Рейтинг}</p>`;
+        }
+        if (props.Сайт && props.Сайт !== 'Нет данных') {
+            description += `<p><strong>Сайт:</strong> <a href="${props.Сайт}" target="_blank">Перейти</a></p>`;
+        }
+        if (props.Телефон && props.Телефон !== 'Нет данных') {
+            description += `<p><strong>Телефон:</strong> ${props.Телефон}</p>`;
+        }
+
+        new mapboxgl.Popup()
+            .setLngLat(e.features[0].geometry.coordinates)
+            .setHTML(`<h3>${name}</h3>${description}`)
+            .addTo(map);
+    });
+
+    map.on('mouseenter', layer, () => map.getCanvas().style.cursor = 'pointer');
+    map.on('mouseleave', layer, () => map.getCanvas().style.cursor = '');
+}
 
         async function loadGeoData(file) {
             if (dataCache.has(file)) {
@@ -548,6 +577,41 @@ map.fitBounds(bounds, { padding: 50, maxZoom: 10 });
             element.classList.toggle('collapsed');
             items.classList.toggle('collapsed');
         }
+
+
+
+document.querySelector('.onlyeat').addEventListener('click', function() {
+    const checkboxes = document.querySelectorAll('.legend-checkbox');
+    checkboxes.forEach(checkbox => {
+        const layerId = checkbox.id.replace('-checkbox', '');
+        if (checkbox.id !== 'foodnation-checkbox') {
+            checkbox.checked = false;
+            try {
+                toggleLayer(layerId);
+            } catch (error) {
+                console.error(`Ошибка при скрытии слоя ${layerId}:`, error);
+            }
+        }
+        else {
+            checkbox.checked = true;
+            try {
+                toggleLayer('foodnation');
+            } catch (error) {
+                console.error('Ошибка при показе слоя foodnation:', error);
+            }
+        }
+    });
+});
+
+document.querySelector('.reset-view').addEventListener('click', function() {
+    map.flyTo({
+        center: [52.39, 55.73], // Центр Набережных Челнов
+        zoom: 10, // Более близкий вид
+        speed: 0.8,
+        curve: 1,
+        essential: true
+    });
+});
     </script>
 </body>
 </html>

@@ -1,0 +1,6 @@
+AddDefaultCharset Off
+AddDefaultCharset UTF-8
+
+<FilesMatch "\.geojson$">
+    AddType application/geo+json .geojson
+</FilesMatch>
